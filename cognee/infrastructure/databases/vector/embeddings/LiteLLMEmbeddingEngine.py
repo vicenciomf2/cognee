@@ -126,14 +126,16 @@ class LiteLLMEmbeddingEngine(EmbeddingEngine):
         # If model also contains provider information, extract only model information
         model = self.model.split("/")[-1]
 
-        if "openai" in self.provider.lower():
-            tokenizer = TikTokenTokenizer(model=model, max_tokens=self.max_tokens)
+        if "gemini-2.5" in self.model.lower():
+            tokenizer = TikTokenTokenizer(model="o1", max_tokens=self.max_tokens)
+        elif "gemini-embedding" in self.model.lower():
+            tokenizer = TikTokenTokenizer(model="text-embedding-3-large", max_tokens=self.max_tokens)
         elif "gemini" in self.provider.lower():
             tokenizer = GeminiTokenizer(model=model, max_tokens=self.max_tokens)
         elif "mistral" in self.provider.lower():
             tokenizer = MistralTokenizer(model=model, max_tokens=self.max_tokens)
-        else:
-            tokenizer = HuggingFaceTokenizer(model=self.model, max_tokens=self.max_tokens)
+        else:  # TODO: Agregarlo a PR
+            tokenizer = HuggingFaceTokenizer(model=self.model.replace("openai/", "intfloat/"), max_tokens=self.max_tokens)
 
         logger.debug(f"Tokenizer loaded for model: {self.model}")
         return tokenizer
